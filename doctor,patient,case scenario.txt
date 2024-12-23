@@ -1,0 +1,154 @@
+create table doctor
+(doc_id varchar2(4) primary key,
+fname varchar2(20),
+lname varchar2(20),
+specialty varchar2(20),
+phone number(10)
+);
+
+insert into doctor values('d1','arun','patel','ortho',9675093453);
+insert into doctor values('d2','tim','patil','general',9674560453);
+insert into doctor values('d3','abhay','sharma','heart',9675993453);
+
+select * from doctor;
+
+
+create table patient
+(pat_id varchar2(4) primary key,
+fname varchar2(20),
+lname varchar2(20),
+ins_comp varchar2(20),
+phone number(10)
+);
+
+insert into patient values('p1','akul','shankar','y',9148752347);
+insert into patient values('p2','aman','shetty','y',9512896317);
+insert into patient values('p3','ajay','shetty','n',9987321564);
+insert into patient values('p4','akshay','pandit','y',9112255889);
+insert into patient values('p5','adi','shankar','n',9177788821);
+
+select * from patient;
+
+
+create table case
+(admission_date date,
+pat_id varchar2(4) references patient(pat_id),
+doc_id varchar2(4) references doctor(doc_id),
+diagnosis varchar2(40),
+constraint con_cpk primary key(admission_date,pat_id)
+);
+
+insert into case values('10-jun-16','p1','d1','fracture');
+insert into case values('03-may-16','p2','d1','bone cancer');
+insert into case values('17-apr-16','p2','d2','fever');
+insert into case values('28-oct-15','p3','d2','cough');
+insert into case values('10-jun-16','p3','d1','fracture');
+insert into case values('1-jan-16','p3','d1','bone cramp');
+insert into case values('11-sep-15','p3','d3','heart attack');
+insert into case values('30-nov-15','p4','d3','heart hole');
+insert into case values('10-nov-15','p4','d3','angioplasty');
+insert into case values('1-jan-16','p5','d3','angiogram');
+
+select * from case;
+
+
+COMMIT
+
+
+
+--1)Find all the patients who are treated in the first week of this month.
+SELECT * FROM case
+insert into case values('19-12-24','p2','d2','fever');
+insert into case values('05-12-24','p1','d2','cold');
+
+SELECT p.fname 
+FROM patient p
+JOIN case c ON p.pat_id=c.pat_id
+WHERE TO_CHAR(admission_date,'mm-yyyy')=TO_CHAR(sysdate,'mm-yyyy') and TO_CHAR(admission_date,'w') = 1 ;
+
+
+
+
+--2)Find the patient name (first,last) who got admitted today where the doctor is ‘TIM’
+SELECT p.fname||' '||p.lname as full_name,c.admission_date
+FROM patient p
+JOIN case c ON p.pat_id=c.pat_id
+JOIN doctor d ON c.doc_id=d.doc_id
+WHERE to_char(c.admission_date,'dd-mm-yy') = to_char(sysdate,'dd-mm-yy') and d.fname='tim';
+
+
+
+--3)Find the Doctors whose phone numbers were not update (phone number is null)
+SELECT d.fname
+FROM doctor d
+WHERE d.phone IS NULL;
+
+
+
+--4)Display the doctors whose specialty is same as Doctor ‘TIM’
+SELECT d.fname
+FROM doctor d
+where specialty = 
+(select specialty  from doctor where fname = 'tim') and fname!= 'tim'
+
+insert into doctor values('d4','Raj','KUmar','general',482974348);
+insert into case values('18-12-24','p2','d1','cold');
+commit;
+
+
+
+--5)Display the doctors who don’t have any cases registered this week
+select fname
+from doctor 
+where doc_id not in 
+(SELECT d.doc_id
+FROM doctor d
+JOIN case c ON d.doc_id=c.doc_id
+WHERE TO_CHAR(c.admission_date,'w-mm-yyyy')= to_char(sysdate,'w-mm-yyyy'));
+
+
+
+--6)Display Doctor Name, Patient Name, Diagnosis for all the admissions which happened on 1st of Jan this year
+SELECT d.fname, p.fname, c.diagnosis
+FROM patient p
+JOIN case c ON p.pat_id=c.pat_id
+JOIN doctor d ON c.doc_id=d.doc_id
+WHERE c.admission_date =trunc(sysdate,'yyyy')
+
+
+
+
+--7)Display who are all patients take an treatment this month
+SELECT p.fname
+FROM patient p
+JOIN case c ON p.pat_id=c.pat_id
+WHERE TO_CHAR(c.admission_date,'mm-yy')=TO_CHAR(sysdate,'mm-yy');
+
+
+
+--8)Display the doctor who treat for Heart attack
+SELECT d.fname
+FROM doctor d
+JOIN case c ON d.doc_id=c.doc_id
+WHERE c.diagnosis='heart attack';
+
+
+
+--9)Display how many patients consulated doctor abhay
+SELECT COUNT(p.pat_id)
+FROM patient p
+JOIN case c ON p.pat_id=c.pat_id
+JOIN doctor d ON c.doc_id=d.doc_id
+WHERE d.fname='abhay';
+
+
+
+--10)Display patients who got admitted yesterday and who treated them
+SELECT p.fname, d.fname
+FROM patient p
+JOIN case c ON p.pat_id=c.pat_id join doctor d
+on d.doc_id = c.doc_id
+where to_char(admission_date,'dd-mm-yy') = to_char(sysdate-1,'dd-mm-yy')
+
+select to_char(sysdate-1,'dd-mm-yy') from dual
+commit;
